@@ -21,7 +21,7 @@ public class Solution {
 	
 	Solution(int n, Memory mem){
 		solMaxSize = n;
-		edgeMaxSize = solMaxSize * solMaxSize;
+		edgeMaxSize = n;
 		solSize = 0;
 		edgeSize = 0;
 		sol = new int[solMaxSize];
@@ -96,6 +96,7 @@ public class Solution {
 		 */
 		Random rand = new Random();
 		int start = rand.nextInt(solMaxSize);
+		start=0;
 		
 		solAdd(start);
 		
@@ -260,6 +261,17 @@ public class Solution {
 		}
 		return false;
 
+	}
+	public void twoExchange(Edge a, Edge b){
+
+		for(int i=0; i<edgeSize; i++){
+			if(edges[i] == a){
+				edges[i] = new Edge(a.origin, b.origin, euclidean(mem, a.origin, b.origin));
+			}
+			if(edges[i] == b){
+				edges[i] = new Edge(a.dest, b.dest, euclidean(mem, a.dest, b.dest));
+			}
+		}
 	}
 	public ArrayList<Edge> getAllConflicts(){
 		ArrayList<Edge> conflicts = new ArrayList<Edge>();
