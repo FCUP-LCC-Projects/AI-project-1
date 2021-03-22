@@ -18,6 +18,21 @@ public class Solution {
 	Edge[] edges;
 	Memory mem;
 	int solSize, edgeSize, solMaxSize, edgeMaxSize;
+
+	Solution(Memory mem, Edge[] edges){
+		solMaxSize = mem.memSize;
+		edgeMaxSize = mem.memSize;
+		solSize =0;
+		edgeSize =0;
+		sol = new int[solMaxSize];
+		Arrays.fill(sol,-1);
+		this.edges = new Edge[solMaxSize];
+
+		for(int i=0; i<edges.length; i++){
+			this.edges[i] = edges[i];
+		}
+		this.mem = mem;	
+	}
 	
 	Solution(int n, Memory mem){
 		solMaxSize = n;
@@ -61,6 +76,14 @@ public class Solution {
 	public void edgeAdd(Edge edge) {
 		edges[edgeSize++] = edge;
 	}
+
+	public int getPerimiter(){
+		int size =0; 
+		for(int i=0; i<solMaxSize; i++){
+			size += edges[i].distance;
+		}
+		return size;
+	}
 	
 	public int nearestNeighbour(Point start, Memory mem) {
 		/**
@@ -96,8 +119,7 @@ public class Solution {
 		 */
 		Random rand = new Random();
 		int start = rand.nextInt(solMaxSize);
-		start=0;
-		
+				
 		solAdd(start);
 		
 		while(solSize <solMaxSize){
@@ -249,6 +271,59 @@ public class Solution {
         return false;
 
 	}
+	
+	// public void twoExchange(Edge a, Edge b){
+	// 	//int indexA, indexB;
+	// 	for(int i=0; i<edgeSize; i++){
+	// 		if(edges[i] == a){
+	// 			edges[i] = new Edge(a.origin, b.origin, euclidean(mem, a.origin, b.origin));
+	// 			//indexA =i;
+	// 		}
+	// 		if(edges[i] == b){
+	// 			edges[i] = new Edge(a.dest, b.dest, euclidean(mem, a.dest, b.dest));
+	// 			edges[i-1] = new Edge(edges[i-1].dest, edges[i-1].origin, edges[i-1].distance);
+	// 			//indexB = i;
+	// 		}
+	// 	}
+	// }
+
+	public void sortPath(){
+		for(int i=0; i<solMaxSize-1; i++){
+			Edge a,b;
+			a = edges[i];
+			b = edges[i+1];
+			if(a.dest != b.origin){
+				for(int j=0; j<solMaxSize; j++){
+					Edge c = edges[j];
+					if(c.origin == a.dest){
+						edges[i+1] = c;
+						edges[j] = b;
+					}
+				}
+
+			}
+		}
+	}
+
+	public void twoExchange(Edge a, Edge b){
+		int index =0;
+		while(edges[index] !=a){
+			index++;
+		}
+		edges[index] = new Edge(a.origin, b.origin, euclidean(mem, a.origin, b.origin));
+		index++;
+
+		while(edges[index] != b){
+			edges[index] = new Edge(edges[index].dest, edges[index].origin, edges[index].distance);
+			index++;
+		}
+
+		edges[index] = new Edge(a.dest, b.dest, euclidean(mem, a.dest, b.dest));
+
+		sortPath();
+
+	}
+
 	public boolean conflictAlreadyFound(ArrayList<Edge> conflicts, Edge a, Edge b){
 
 		for(int i=0; i<conflicts.size()-1; i+=2){
@@ -260,20 +335,10 @@ public class Solution {
 			}
 		}
 		return false;
-
 	}
-	public void twoExchange(Edge a, Edge b){
 
-		for(int i=0; i<edgeSize; i++){
-			if(edges[i] == a){
-				edges[i] = new Edge(a.origin, b.origin, euclidean(mem, a.origin, b.origin));
-			}
-			if(edges[i] == b){
-				edges[i] = new Edge(a.dest, b.dest, euclidean(mem, a.dest, b.dest));
-			}
-		}
-	}
 	public ArrayList<Edge> getAllConflicts(){
+		
 		ArrayList<Edge> conflicts = new ArrayList<Edge>();
 		for(int i=0; i<solMaxSize; i++){
 			Edge a = edges[i];
