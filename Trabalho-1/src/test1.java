@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+
 public class test1 {
 	
 	public static void generatePoints(int n, int m, Memory mem) {
@@ -48,6 +49,74 @@ public class test1 {
 			System.out.println(start + " " + end);
 		}
 	}
+
+	public static  Solution firstImprovement(Solution solution, ArrayList<Edge> conflicts){
+		
+		Solution temp = new Solution(solution.mem, solution.edges);
+		
+		int perimeter = Integer.MAX_VALUE;
+
+		for(int i=0; i<conflicts.size(); i+=2){
+			Edge a = conflicts.get(i);
+			Edge b = conflicts.get(i+1);
+			temp.twoExchange(a, b);
+			int tempPerimeter = temp.getPerimiter();
+			if(tempPerimeter < perimeter){
+				break;
+			}
+			temp = new Solution(solution.mem, solution.edges);
+		}
+		return temp;
+	}
+
+	public static Solution bestImprovementFirst(Solution solution, ArrayList<Edge> conflicts){
+		
+		int perimeter = solution.getPerimiter();
+		
+		Solution best = new Solution(solution.mem, solution.edges);
+		Solution temp = new Solution(solution.mem, solution.edges);
+
+		for(int i=0; i<conflicts.size(); i+=2){
+			Edge a = conflicts.get(i);
+			Edge b = conflicts.get(i+1);
+			temp.twoExchange(a, b);
+			System.out.println("\n");
+			printEdges(temp);
+			int tempPerimeter = temp.getPerimiter();
+			if(tempPerimeter < perimeter){
+				best = new Solution(temp.mem, temp.edges);
+				perimeter = tempPerimeter;
+			}
+			temp = new Solution(solution.mem, solution.edges);
+		}
+		return best;
+	}
+
+	public static  Solution getNextNeighbor(Solution solution,ArrayList<Edge> conflicts, int option ){
+		Solution next = new Solution();
+		switch(option){
+			case 1:
+				next = bestImprovementFirst(solution, conflicts);
+			case 2:
+				next = firstImprovement(solution, conflicts);
+		}
+		return next;
+	}
+
+	public static Solution hillClimbing(Solution solution, ArrayList<Edge> conflicts, int option){
+	
+		if(conflicts.size() ==0){
+			return solution;
+		}
+		Solution temp = getNextNeighbor(solution, conflicts, option);
+
+		if(temp.getPerimiter() < solution.getPerimiter()){
+			return hillClimbing(temp, temp.getAllConflicts(), option);
+		}
+		Solution empty = new Solution(0,new Memory(0));
+
+		return empty;
+	}
 	
 	
 	
@@ -55,6 +124,8 @@ public class test1 {
 	//ainda nao testei a permutation nem nada
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
+
+		int defaultOption =2;
 		
 		int n = sc.nextInt();
 		//int m = sc.nextInt();
@@ -70,26 +141,17 @@ public class test1 {
 
 		solution.permutation(mem);
 
-		ArrayList<Edge> conflicts = solution.getAllConflicts();
-
 		printEdges(solution);
-		System.out.println();
 
-		printConflicts(conflicts, mem);
+		Solution res = hillClimbing(solution, solution.getAllConflicts(),defaultOption);
 
+		while(res.solMaxSize==0){
+			System.out.println("IMPOSSIBLE!!!\n\n");
+			solution = new Solution(n,mem);
+			solution.permutation(mem);
+			res = hillClimbing(solution, solution.getAllConflicts(),defaultOption);
 
-		
-
-
-		
-	
-
-	
-
-
-
-
-
+		}
 		
 		sc.close();
 	}

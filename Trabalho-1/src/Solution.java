@@ -19,6 +19,8 @@ public class Solution {
 	Memory mem;
 	int solSize, edgeSize, solMaxSize, edgeMaxSize;
 
+	Solution(){};
+
 	Solution(Memory mem, Edge[] edges){
 		solMaxSize = mem.memSize;
 		edgeMaxSize = mem.memSize;
@@ -118,9 +120,9 @@ public class Solution {
 		 * dado um ponto aleatório inicial.
 		 */
 		Random rand = new Random();
-		int start = rand.nextInt(solMaxSize);
-				
+		int start = rand.nextInt(solMaxSize);	
 		solAdd(start);
+		
 		
 		while(solSize <solMaxSize){
 			int next = nearestNeighbour(mem.points[start], mem);
@@ -310,12 +312,22 @@ public class Solution {
 		while(edges[index] !=a){
 			index++;
 		}
+		
 		edges[index] = new Edge(a.origin, b.origin, euclidean(mem, a.origin, b.origin));
+		
+		
 		index++;
+
+		if(index >=solMaxSize){
+			index=0;
+		}
 
 		while(edges[index] != b){
 			edges[index] = new Edge(edges[index].dest, edges[index].origin, edges[index].distance);
 			index++;
+			if(index >= solMaxSize){
+				index=0;
+			}
 		}
 
 		edges[index] = new Edge(a.dest, b.dest, euclidean(mem, a.dest, b.dest));
