@@ -9,4 +9,13 @@ public class Edge {
 		dest = j;
 		distance = d; //distância euclideana 
 	}
+	
+	public boolean equals(Edge a) {
+		return this.origin == a.origin && this.dest == a.dest? true: false;
+	}
+	
+	@Override
+	public String toString() {
+		return "["+origin+","+dest+"]";
+	}
 }

@@ -9,8 +9,12 @@ public class Point {
 		this.index = index;
 	}
 	
-	public int equalPoint(Point p) {
-		return this.x == p.x && this.y == p.y ? 1:0;
+	public boolean equals(Point p) {
+		return this.x == p.x && this.y == p.y ? true:false;
+	}
+	
+	public boolean equals(int x, int y) {
+		return this.x == x && this.y == y ? true:false;
 	}
 	
 	public int comparePoint(Point p) {
