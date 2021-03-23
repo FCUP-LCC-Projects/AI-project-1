@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -118,28 +120,58 @@ public class driver {
 		return solution;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		Scanner sc = new Scanner(System.in);
 
-		int defaultOption =1;
+		System.out.println("Input de pontos\n");
+		System.out.println("1 Gerar Input aleatório");
+		System.out.println("2 Escolher ficheiro de input");
 		
-		int n = sc.nextInt();
-		//int m = sc.nextInt();
-		Memory mem = new Memory(n);
-
-		for(int i=0; i<n; i++){
-			int x,y;
-			x = sc.nextInt();
-			y = sc.nextInt();
-			mem.add(x,y,i);
+		int input = sc.nextInt();
+		Memory mem = new Memory(0);
+		int n=0;
+		int m=0;
+		if(input ==1){
+			System.out.println("Número de pontos:");
+			n = sc.nextInt();
+			System.out.println("Valor máximo das coordenadas");
+			m = sc.nextInt();
+			mem = new Memory(n);
+			generatePoints(n, m, mem);
 		}
+		if(input ==2){
+			sc.nextLine();
+			System.out.println("Nome do ficheiro:");
+			String file = sc.nextLine();
+			File inputFile = new File(file);
+			Scanner myReader = new Scanner(inputFile);
+			n = myReader.nextInt();
+			mem = new Memory(n);
+			for(int i=0; i<n; i++){
+				int x,y;
+				x = myReader.nextInt();
+				y = myReader.nextInt();
+				mem.add(x,y,i);
+			}
+			myReader.close();
+		}
+
+		System.out.println("Escolha do candidato");
+		System.out.println("1 Best Improvement first");
+		System.out.println("2 First Improvement");
+		System.out.println("3 Less Conflicts");
+		System.out.println("4 Random");
+
+		int option =sc.nextInt();
+		
+		
 		Solution solution = new Solution(n,mem);
 
 		solution.greedy(mem);
 
-		printEdges(solution);
+		//printEdges(solution);
 
-		Solution finalResult = hillClimbing(solution, solution.getAllConflicts(),defaultOption);
+		Solution finalResult = hillClimbing(solution, solution.getAllConflicts(),option);
 		System.out.println("\nSolução final\n");
 		
 		printEdges(finalResult);
