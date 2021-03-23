@@ -232,12 +232,22 @@ public class Solution {
 	}
 
 	public void twoExchange(Edge a, Edge b){
+		
+		Edge fst, scnd;
+		fst = new Edge(a.origin, b.origin, euclidean(mem, a.origin, b.origin));
+		scnd =new  Edge(a.dest, b.dest, euclidean(mem, a.dest, b.dest));
+		
+		for(int i=0; i<edges.length; i++){
+			if(edges[i] == fst || edges[i] == scnd){
+				return;
+			}
+		}
 		int index =0;
 		while(edges[index] !=a){
 			index++;
 		}
 		
-		edges[index] = new Edge(a.origin, b.origin, euclidean(mem, a.origin, b.origin));
+		edges[index] = fst;
 		
 		index++;
 
@@ -253,7 +263,7 @@ public class Solution {
 			}
 		}
 
-		edges[index] = new Edge(a.dest, b.dest, euclidean(mem, a.dest, b.dest));
+		edges[index] = scnd;
 
 		sortPath();
 

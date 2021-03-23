@@ -1,8 +1,10 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
 
 public class driver {
@@ -11,13 +13,22 @@ public class driver {
 		/**
 		 * Generate n random points with ranges between m and -m
 		 */
+		Set<Point> points = new HashSet<Point>();
 		Random rand = new Random();
 		int upperbound = m*2+1;
 		
 		for(int i=0; i<n; i++) { //adiciona condição para confirmar que n ha pontos repetidos
 			int x = rand.nextInt(upperbound) - m; // a subtração é porque rand só retorna entre [0, upperbound]
 			int y = rand.nextInt(upperbound) - m; // então é necessário a subtração para se obter números negativos
-			mem.add(x, y, i);
+			Point tmp = new Point(x,y,0);
+			if(!points.contains(tmp)){
+				mem.add(x, y, i);
+				points.add(tmp);
+			}
+			else{
+				i--;
+			}
+
 		}
 	}
 
@@ -82,7 +93,6 @@ public class driver {
 			Edge a = conflicts.get(i);
 			Edge b = conflicts.get(i+1);
 			temp.twoExchange(a, b);
-			System.out.println("\n");
 			int tempPerimeter = temp.getPerimiter();
 			if(tempPerimeter < perimeter){
 				best = new Solution(temp.mem, temp.edges);
@@ -168,8 +178,6 @@ public class driver {
 		Solution solution = new Solution(n,mem);
 
 		solution.greedy(mem);
-
-		//printEdges(solution);
 
 		Solution finalResult = hillClimbing(solution, solution.getAllConflicts(),option);
 		System.out.println("\nSolução final\n");
