@@ -140,6 +140,18 @@ public class HillClimbing {
 	}
 
 	public Edge[] twoExchange(Solution s, Conflict c){
+		Edge fst, scnd;
+		
+		fst = new Edge(c.a.origin, c.b.origin, s.euclidean(mem, c.a.origin, c.b.origin));
+		scnd =new  Edge(c.a.dest, c.b.dest, s.euclidean(mem, c.a.dest, c.b.dest));
+		
+		for(int i=0; i<s.edges.length; i++){
+			if(s.edges[i] == fst || s.edges[i] == scnd){
+				Edge[] empty = new Edge[0];
+				return empty;
+			}
+		}
+
 		int index =0;
 		Edge[] edges = s.copyEdge();
 		while(!edges[index].equals(c.a)){
@@ -177,12 +189,20 @@ public class HillClimbing {
 		ArrayList<Solution> neighbours = new ArrayList<>();
 		while(!edgeConflicts.isEmpty()) {
 			neighbours.add(new Solution(s.solMaxSize));
-			neighbours.get(neighbourCount).edges = twoExchange(s, edgeConflicts.remove());
-			neighbours.get(neighbourCount).solSize = s.solSize;
-			neighbours.get(neighbourCount).edgeSize = s.edgeSize;
-			neighbours.get(neighbourCount).solGenerate(mem);
-			neighbourCount++;
-		}
+			Edge [] neighbourEdges = twoExchange(s, edgeConflicts.remove());
+			//TwoExchange function returns a empty array of Edges when can't perform the twoExchange action
+			if(neighbourEdges.length ==0 ){
+				neighbours.remove(neighbourCount);
+			}
+			else{
+				neighbours.get(neighbourCount).edges = neighbourEdges;
+				neighbours.get(neighbourCount).solSize = s.solSize;
+				neighbours.get(neighbourCount).edgeSize = s.edgeSize;
+				neighbours.get(neighbourCount).solGenerate(mem);
+				neighbourCount++;
+
+			}
+					}
 		
 		//printNeighbours(neighbours);
 		
