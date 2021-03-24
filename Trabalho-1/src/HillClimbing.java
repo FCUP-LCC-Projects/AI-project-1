@@ -119,28 +119,53 @@ public class HillClimbing {
 		return conflicts;
 	}
 	
-	public void swapIndex(int[] sol, int i, int j, Solution s) {
+	public Edge[] sortPath(Edge[] edges, int s){
+		for(int i=0; i<s-1; i++){
+			Edge a,b;
+			a = edges[i];
+			b = edges[i+1];
 		
-		//edge cases
-		if(i == s.solSize-1)	i = 0;
-		else					i++;
-		
-		sol[i] = s.sol[j];
-		sol[j] = s.sol[i];
+			if(a.dest != b.origin){
+				for(int j=0; j<s; j++){
+					Edge c = edges[j];
+					if(c.origin == a.dest){
+						edges[i+1] = c;
+						edges[j] = b;
+					}
+				}
+			}
+		}
+
+		return edges;
 	}
-	
-	public int[] twoExchange(Solution s, Conflict c) {
-		/**
-		 * Aplica a heurística two exchange, trocando de posição os dois índices que estavam no
-		 * array solução do candidato.
-		 */
-		int first = s.getEdge(c.a);
-		int second = s.getEdge(c.b);
+
+	public Edge[] twoExchange(Solution s, Conflict c){
+		int index =0;
+		Edge[] edges = s.copyEdge();
+		while(!edges[index].equals(c.a)){
+			index++;
+		}
 		
-		int[] sol = s.copySol();
-		swapIndex(sol, first, second, s);
+		edges[index] = new Edge(c.a.origin, c.b.origin, s.euclidean(mem, c.a.origin, c.b.origin));
 		
-		return sol;
+		index++;
+
+		if(index >=s.solMaxSize){
+			index=0;
+		}
+
+		while(!edges[index].equals(c.b)){
+			edges[index] = new Edge(s.edges[index].dest, s.edges[index].origin, s.edges[index].distance);
+			index++;
+			if(index >= s.solMaxSize){
+				index=0;
+			}
+		}
+
+		edges[index] = new Edge(c.a.dest, c.b.dest, s.euclidean(mem, c.a.dest, c.b.dest));
+		
+
+		return sortPath(edges, s.solMaxSize);
 	}
 	
 	public ArrayList<Solution> resolveConflicts(Solution s) {
@@ -152,9 +177,10 @@ public class HillClimbing {
 		ArrayList<Solution> neighbours = new ArrayList<>();
 		while(!edgeConflicts.isEmpty()) {
 			neighbours.add(new Solution(s.solMaxSize));
-			neighbours.get(neighbourCount).sol = twoExchange(s, edgeConflicts.remove());
+			neighbours.get(neighbourCount).edges = twoExchange(s, edgeConflicts.remove());
 			neighbours.get(neighbourCount).solSize = s.solSize;
-			neighbours.get(neighbourCount).edgeGenerate(mem);
+			neighbours.get(neighbourCount).edgeSize = s.edgeSize;
+			neighbours.get(neighbourCount).solGenerate(mem);
 			neighbourCount++;
 		}
 		
@@ -164,7 +190,7 @@ public class HillClimbing {
 	}	
 	
 	
-	public int firstImprovement(ArrayList<Solution> neighbours){		
+	public Solution firstImprovement(ArrayList<Solution> neighbours){		
 		int best = 0;
 		int perimeter = neighbours.get(best).getPerimiter();
 		
@@ -174,13 +200,12 @@ public class HillClimbing {
 				best = i;
 				break;
 			}
-		}
-
-		return best;
+		}		
+		return neighbours.get(best);
 	}
 	
 	
-	public int bestImprovementFirst(ArrayList<Solution> neighbours){	
+	public Solution bestImprovementFirst(ArrayList<Solution> neighbours){	
 		/**
 		 * Calcula o vizinho com melhor perímetro e retorna o seu índice
 		 */
@@ -194,40 +219,39 @@ public class HillClimbing {
 				perimeter = tmpPerimeter;
 			}
 		}
-
-		return best;
+		return neighbours.get(best);
 	}
 	
-	public int lesserConflicts(ArrayList<Solution> neighbours) {
+	public Solution lesserConflicts(ArrayList<Solution> neighbours) {
 		/**
 		 * Retorna o vizinho com menos conflitos e retorna o seu índice
 		 */
 		int best = 0;
-		int conflicts = conflicts(neighbours.get(best), false);
+		int conflicts = conflicts(neighbours.get(best),false);
 		
-		for(int i=1; i<neighbours.size(); i++) {
+		for(int i=0; i<neighbours.size(); i++) {
 			int tmpConflicts = conflicts(neighbours.get(i), false);
 			if(tmpConflicts < conflicts) {
 				best = i;
 				conflicts = tmpConflicts;
 			}
 		}
-		return best;
+		return neighbours.get(best);
 	}
 	
-	public int getNewRandom(int size) {
+	public Solution getNewRandom(int size, ArrayList<Solution> n) {
 		Random rand = new Random();
-		return rand.nextInt(size);		
+		return n.get(rand.nextInt(size));		
 	}
 	
-	public int chooseFunction(ArrayList<Solution> n, int option) {
+	public Solution chooseFunction(Solution s, ArrayList<Solution> n, int option) {
 		switch(option) {
 		case 1: return bestImprovementFirst(n);
 		case 2: return firstImprovement(n);
 		case 3: return lesserConflicts(n);
-		case 4: return getNewRandom(n.size());
+		case 4: return getNewRandom(n.size(), n);
 		}
-		return -1; //error
+		return s;
 	}
 	
 	public void hillClimbing(Solution s, int option) {
@@ -240,13 +264,12 @@ public class HillClimbing {
 				neighbours = resolveConflicts(s);
 			}
 			
-			int best = chooseFunction(neighbours, option);
-			if(conflicts(neighbours.get(best), false) == 0) break;
-			int curPerimiter = neighbours.get(best).getPerimiter();
+			Solution best = chooseFunction(s, neighbours, option);
+			int curPerimiter = best.getPerimiter();
 			
 			if(curPerimiter < perimiter) {
-				s.sol = neighbours.get(best).sol;
-				s.edges = neighbours.get(best).edges;
+				s.sol = best.sol;
+				s.edges = best.edges;
 				nConflicts = conflicts(s, true);
 				perimiter = curPerimiter;
 			}

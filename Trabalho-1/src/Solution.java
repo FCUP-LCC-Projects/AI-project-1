@@ -18,7 +18,7 @@ public class Solution {
 	
 	Solution(int n, Edge[] edges){
 		solMaxSize = n;
-		edgeMaxSize = n;
+		edgeMaxSize = solMaxSize;
 		solSize = 0;
 		edgeSize = 0;
 		sol = new int[solMaxSize];
@@ -53,17 +53,24 @@ public class Solution {
 	}
 	
 	public boolean solContains(int index) {
-		for(int cur : sol) {
-			if(cur == index) return true;
+		for(int i=0; i<solSize; i++) {
+			if(sol[i] == index) return true;
 		}
 		return false;
 	}
 	
-	public int[] copySol() {
+	public int[] copySol(int limit) {
 		int[] s = new int[solMaxSize];
-		for(int i = 0; i<solSize; i++)
+		for(int i = 0; i<limit; i++)
 			s[i] = sol[i];
 		return s;
+	}
+	
+	public Edge[] copyEdge() {
+		Edge[] e = new Edge[edgeMaxSize];
+		for(int i=0; i<edgeMaxSize; i++)
+			e[i] = edges[i];
+		return e;
 	}
 	
 	public boolean edgeContains(Edge e) {
@@ -128,7 +135,6 @@ public class Solution {
 		 */
 		Random rand = new Random();
 		int start = rand.nextInt(solMaxSize);
-		
 		solAdd(start);
 		
 		while(solSize < solMaxSize) {
@@ -163,6 +169,12 @@ public class Solution {
 		
 		int lastEdgeDistance = euclidean(mem, solGetLast(), solGetFirst()); //fica a faltar o último ramo, que é entre o último ponto e o primeiro
 		edgeAdd(new Edge(solGetLast(), solGetFirst(), lastEdgeDistance));
+	}
+	
+	public void solGenerate(Memory mem) {
+		for(int i=0; i<edgeMaxSize; i++) {
+			sol[i] = edges[i].origin;
+		}
 	}
 	
 	public void permutation(Memory mem) {
