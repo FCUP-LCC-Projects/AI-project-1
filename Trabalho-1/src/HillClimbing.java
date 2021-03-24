@@ -39,42 +39,87 @@ public class HillClimbing {
   
     return false;
     }
-
-	public boolean edgeIntersect(Edge a, Edge b){
+	/*
+	Uso um array de booleans porque para elém de querer detetar que se interseta, também quero detetar 
+	se são segmentos colineares. o [0] indica se interceta e [1] indica se são colineares
+	*/
+	public boolean[] edgeIntersect(Edge a, Edge b){
 		int o1, o2,o3,o4;
+		int count =0;
 		Point start1, end1, start2, end2;
 		start1 = mem.points[a.origin];
 		end1 = mem.points[a.dest];
 		start2 = mem.points[b.origin];
 		end2 = mem.points[b.dest];
-		
+		boolean [] array = new boolean[2];
+		boolean collinear = false;
 		o1 = orientation(start1, end1, start2);
 		o2 = orientation(start1, end1, end2);
 		o3 = orientation(start2, end2, start1);
 		o4 = orientation(start2, end2, end1);
-		if(o1 != o2 && o3 != o4){
-            return true;
+		if(o1 *o2 <0  && o3 * o4 <0 ){
+            array[0] = true;
+			array[1] = false;
+			return array;
         }
 
-        if(o1==0  && onSegment(start1, start2, end1)) return true;
-        if(o2==0  && onSegment(start1, end2, end1)) return true;
-        if(o3==0  && onSegment(start2, start1, end2)) return true;
-        if(o4==0  && onSegment(start2, end1, end2)) return true;
+		if(o1==0) count++;
+		if(o2==0) count++;
+		if(o3==0) count++;
+		if(o3==0) count++;
 
-        return false;
+		if(count ==4){
+			collinear = true;
+		}
+			array[1] = collinear;
+
+
+
+        if(o1==0  && onSegment(start1, start2, end1)){
+			if(start2 != end1 && start2 !=start1){
+				array[0] = true;
+				return array;
+			}
+		} 
+			
+        if(o2==0  && onSegment(start1, end2, end1)){
+			if(end2 != start1 && end2!= end1){
+				array[0] = true;
+				return array;
+			}
+		} 
+		
+        if(o3==0  && onSegment(start2, start1, end2)){
+			if(start1!= start2 && start1 != end2){
+				array[0] = true;
+				return array;
+			}
+		} 
+		
+        if(o4==0  && onSegment(start2, end1, end2)){
+			if(end1!= start2 && end1!=end2){
+				array[0] = true;
+				return array;
+			}
+		}
+		array[0] = false;
+        return array;
 
 	}
-	
-	class Conflict{
+
+	 class Conflict{
 		/**
 		 * Classe que contém duas arestas que estejam intersetadas
 		 */
 		Edge a;
 		Edge b;
+
+		boolean collinear;
 		
-		Conflict(Edge first, Edge second){
+		Conflict(Edge first, Edge second, boolean col){
 			a = first;
 			b = second;
+			collinear = col;
 		}
 		
 		public boolean equals(Edge fst, Edge snd) {
@@ -108,9 +153,13 @@ public class HillClimbing {
 			Edge a = s.edges[i];
 			for(int j=0; j<s.solMaxSize; j++){
 				Edge b = s.edges[j];
-				if(!b.equals(a) && a.dest!=b.origin && a.origin!=b.dest && edgeIntersect(a,b) && !conflictAlreadyFound(a,b, edgeConflicts)) {
-					if(keepEdges) edgeConflicts.add(new Conflict(a,b));
-					conflicts++;
+				if(!b.equals(a)){
+					boolean[] array =edgeIntersect(a,b);
+					boolean isCollinear = array[1]; 
+					if(array[0] == true && !conflictAlreadyFound(a,b, edgeConflicts)) {
+						if(keepEdges) edgeConflicts.add(new Conflict(a,b,isCollinear));
+						conflicts++;
+					}
 				}
 				
 			}
@@ -138,16 +187,46 @@ public class HillClimbing {
 
 		return edges;
 	}
+	private Point  subPoint(Point p1, Point p2){
+		int x = p1.x - p2.x;
+		int y = p1.y - p2.y;
+		return new Point(x,y,0);
+	}
+	private boolean checkCandidate(Conflict c){
+
+		Point p1 = mem.points[c.a.origin];
+		Point p2 = mem.points[c.a.dest];
+		Point p3 = mem.points[c.b.origin];
+		Point p4 = mem.points[c.b.dest];
+
+		Point a = subPoint(p2,p1);
+		Point b = subPoint(p4,p3);
+
+		if((a.x * b.y + a.y * b.y) >0) return true;
+
+		return false;
+
+
+
+
+	}
 
 	public Edge[] twoExchange(Solution s, Conflict c){
 		Edge fst, scnd;
+		Edge[] empty = new Edge[0];
+
 		
 		fst = new Edge(c.a.origin, c.b.origin, s.euclidean(mem, c.a.origin, c.b.origin));
 		scnd =new  Edge(c.a.dest, c.b.dest, s.euclidean(mem, c.a.dest, c.b.dest));
 		
 		for(int i=0; i<s.edges.length; i++){
 			if(s.edges[i] == fst || s.edges[i] == scnd){
-				Edge[] empty = new Edge[0];
+				return empty;
+			}
+		}
+
+		if(c.collinear){
+			if(!checkCandidate(c)){
 				return empty;
 			}
 		}
@@ -190,7 +269,7 @@ public class HillClimbing {
 		while(!edgeConflicts.isEmpty()) {
 			neighbours.add(new Solution(s.solMaxSize));
 			Edge [] neighbourEdges = twoExchange(s, edgeConflicts.remove());
-			//TwoExchange function returns a empty array of Edges when can't perform the twoExchange action
+			//TwoExchange retorna um array vazio quando não pode fazer a troca
 			if(neighbourEdges.length ==0 ){
 				neighbours.remove(neighbourCount);
 			}
@@ -288,8 +367,7 @@ public class HillClimbing {
 			int curPerimiter = best.getPerimiter();
 			
 			if(curPerimiter < perimiter) {
-				s.sol = best.sol;
-				s.edges = best.edges;
+				s = new Solution(best.solMaxSize, best.sol, best.edges);
 				nConflicts = conflicts(s, true);
 				perimiter = curPerimiter;
 			}

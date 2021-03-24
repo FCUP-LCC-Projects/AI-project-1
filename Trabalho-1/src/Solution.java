@@ -16,12 +16,15 @@ public class Solution {
 	Edge[] edges;
 	int solSize, edgeSize, solMaxSize, edgeMaxSize;
 	
-	Solution(int n, Edge[] edges){
+	Solution(int n, int[] sols, Edge[] edges){
 		solMaxSize = n;
 		edgeMaxSize = solMaxSize;
 		solSize = 0;
 		edgeSize = 0;
 		sol = new int[solMaxSize];
+		for(int i=0; i<n;i++){
+			sol[i] = sols[i];
+		}
 		this.edges = new Edge[solMaxSize];
 
 		for(int i=0; i<edges.length; i++){

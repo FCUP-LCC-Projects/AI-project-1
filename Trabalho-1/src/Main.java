@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.Scanner;
 
+
 public class Main {
 	
 	public static void generatePoints(int n, int m, Memory mem) {
@@ -80,6 +81,7 @@ public class Main {
 		climb.hillClimbing(solution, option);
 			
 		sc.close();
+
 	}
 }
 
