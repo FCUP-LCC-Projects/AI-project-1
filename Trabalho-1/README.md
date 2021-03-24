@@ -1,5 +1,11 @@
-Point - Classe com coordenadas do ponto e índice  
-Edge - ramo que contém ramo de origem e destino e a distância entre eles  
-Memory - Contém array com todos os pontos, usado para facilitar operações como aceder às coordenadas dos pontos e verificar se um ponto já existe  
-Solution - Contém array com o candidato solução, array com os ramos do candidato solução e operaçes para encontrar os candidatos (permutação e nearest neighbour)  
-test1 - Só um ficheiro temporário onde implementei os métodos para calcular a interseção de ramos e geração de pontos. Os métodos de interseção ainda não foram testados.  
+Trabalho realizado por Fábio Silva (201707021) e Mateus Almeida (201805265) - Grupo 62  
+  
+Como correr o programa:  
+  
+Compilar e executar o ficheiro Main.java.  
+  
+  
+Métodos de input:  
+  
+1 - Geração de Pontos - Indicar, durante a execução, dois inteiros n e m, tal que n é o número de pontos do polígono e m o limite máximo do valor das coordenadas dos pontos.  
+2 - Leitura de ficheiro - Indicar o nome do ficheiro a ser lido. O ficheiro terá de conter um inteiro, n, o número de pontos do polígono, e n coordenadas dos pontos.  
