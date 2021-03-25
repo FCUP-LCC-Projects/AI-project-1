@@ -81,8 +81,12 @@ public class HillClimbing {
 		
 		ArrayList<Solution> neighbours = new ArrayList<>();
 		neighbours = n.resolveConflicts(s);
+		int count =0;
 		
 		while(nConflicts > 0 && (!neighbours.isEmpty() || !n.edgeConflicts.isEmpty())) {
+			count++;
+			System.out.println("\n"+count);
+			System.out.println(nConflicts);
 			
 			Solution best = chooseFunction(s, n, neighbours, option);
 			int curPerimiter = best.getPerimiter();
@@ -96,9 +100,12 @@ public class HillClimbing {
 			else if(option == 4) neighbours.remove(best);
 			else break; 
 			
+	
 		}
+
 		System.out.println("conflicts: "+nConflicts);
 		s.printSolution(mem);
+		System.out.println("\n"+"Iterações " +count);
 		
 	}
 	
