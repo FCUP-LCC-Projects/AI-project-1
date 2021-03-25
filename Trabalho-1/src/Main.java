@@ -68,7 +68,7 @@ public class Main {
 		if(selection == 2)
 			solution.greedy(mem);
 		
-		HillClimbing climb = new HillClimbing(mem);
+		HillClimbing climb = new HillClimbing();
 
 		System.out.println("Escolha do candidato");
 		System.out.println("1 - Best Improvement first");
@@ -78,8 +78,8 @@ public class Main {
 
 		int option =sc.nextInt();
 		
-		climb.hillClimbing(solution, option);
-			
+		climb.hillClimbing(solution, mem, option);
+		
 		sc.close();
 
 	}
