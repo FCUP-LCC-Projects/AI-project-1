@@ -69,12 +69,7 @@ public class Neighbours {
 		o2 = orientation(start1, end1, end2);
 		o3 = orientation(start2, end2, start1);
 		o4 = orientation(start2, end2, end1);
-		if(o1 *o2 <0  && o3 * o4 <0 ){
-            array[0] = true;
-			array[1] = false;
-			return array;
-        }
-
+		
 		if(o1==0) count++;
 		if(o2==0) count++;
 		if(o3==0) count++;
@@ -83,7 +78,17 @@ public class Neighbours {
 		if(count ==4){
 			collinear = true;
 		}
-			array[1] = collinear;
+		
+		array[1] = collinear;
+		
+		if(end1 != start2 && end2 != start1){
+			if(o1 != o2   && o3 != o4 ){
+				array[0] = true;
+				return array;
+			}
+		}
+
+		
 
 
 
@@ -287,9 +292,9 @@ public class Neighbours {
 	}
 	
 	
-	public void printConflicts(){
-		System.out.print("empty? :" + edgeConflicts.isEmpty());
+	public void printConflicts(Memory mem){
+		System.out.println("empty? :" + edgeConflicts.isEmpty());
 		for(Conflict c : edgeConflicts)
-			System.out.println(c.a+" "+c.b);
+			System.out.println("(" + mem.points[c.a.origin] +" " + mem.points[c.a.dest] +")" +" "+"(" +mem.points[c.b.origin] + " " + mem.points[c.b.dest] + ")");
 	}
 }
