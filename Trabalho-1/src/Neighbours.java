@@ -144,6 +144,7 @@ public class Neighbours {
 		 * Retorna o número de cruzamentos encontrados == tamanho do conjunto de cruzamentos.
 		 */
 		int conflicts = 0;
+		LinkedList<Conflict> conflictFound = new LinkedList<>();
 		edgeConflicts = new LinkedList<>();
 		
 		for(int i=0; i<s.solMaxSize; i++){
@@ -153,8 +154,10 @@ public class Neighbours {
 				if(!b.equals(a)){
 					boolean[] array =edgeIntersect(a,b);
 					boolean isCollinear = array[1]; 
-					if(array[0] == true && !conflictAlreadyFound(a,b, edgeConflicts)) {
-						if(keepEdges) edgeConflicts.add(new Conflict(a,b,isCollinear));
+					if(array[0] == true && !conflictAlreadyFound(a,b, conflictFound)) {
+						Conflict c = new Conflict(a,b,isCollinear);
+						conflictFound.add(c);
+						if(keepEdges) edgeConflicts.add(c);
 						conflicts++;
 					}
 				}
