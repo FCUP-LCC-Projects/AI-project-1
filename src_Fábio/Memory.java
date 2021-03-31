@@ -9,17 +9,18 @@ public class Memory {
 	Memory(int m){
 		memSize = m;
 		nPoints = 0;
-		points = new Point[m] ;
+		points = new Point[memSize] ;
 	}
 	
 	public void add(int x, int y, int index) {
 		points[nPoints++] = new Point(x, y, index);
 	}
 	
-	public boolean contains(Point p) {
-		for(Point cur : points) {
-			if(cur.equals(p)) return true;
-		}
+	public boolean contains(int x, int y) {
+		
+		for(int i=0; i<nPoints; i++)
+			if(points[i].equals(x,y)) return true;
+		
 		return false;
 	}
 }
