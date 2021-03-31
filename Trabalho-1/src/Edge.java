@@ -13,6 +13,10 @@ public class Edge {
 	public boolean equals(Edge a) {
 		return this.origin == a.origin && this.dest == a.dest? true: false;
 	}
+
+	public int getDistance(){
+		return distance;
+	}
 	
 	@Override
 	public String toString() {

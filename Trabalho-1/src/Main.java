@@ -58,6 +58,39 @@ public class Main {
 		}
 		
 		Solution solution = new Solution(n);
+
+		System.out.println("Algoritmo a ser usado");
+		System.out.println("1- Hill Climbing");
+		System.out.println("2- Simulated Annealing");
+		System.out.println("3- Ant Colony Optimization");
+		
+		int algorithm = sc.nextInt();
+
+		if(algorithm == 3){
+			boolean restart = true;
+			while(restart){
+
+				int maxItrs,ants;
+				double alpha,beta,evap;
+				System.out.println("Número máximo de iterações");
+				maxItrs = sc.nextInt();
+				System.out.println("Número de formigas");
+				ants = sc.nextInt();
+				System.out.println("Peso a atribuir à feromona na probabilidade");
+				alpha = sc.nextDouble();
+				System.out.println("Peso a atribuir à distância na probabilidade");
+				beta = sc.nextDouble();
+				System.out.println("Valor da evaporação da feromona");
+				evap = sc.nextDouble();
+				AntColonyOptimization aco = new AntColonyOptimization(mem, evap,beta,alpha);
+				aco.findBestPath(maxItrs, ants);
+				System.out.println("Tentar com novos parâmetros? (s/n)");
+				String str = sc.next();
+				if(str.equals("n")) restart=false; 
+			}
+			sc.close();
+			return;
+		}
 		
 		System.out.println("Método de determinação de candidato");
 		System.out.println("1 - Permutation");
