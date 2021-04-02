@@ -49,7 +49,7 @@ public class SimulatedAnnealing {
 					
 				
 					if(ap > Math.random()) {
-						System.out.println("ap better than random");
+						//System.out.println("ap better than random");
 						curSol = new Solution(best);
 						
 						curSol.conflicts();
@@ -76,25 +76,6 @@ public class SimulatedAnnealing {
 		min.printSolution();
 	}
 	
-	public Solution lesserConflicts(ArrayList<Solution> neighbours) {
-		/**
-		 * Retorna o vizinho com menos conflitos e retorna o seu índice
-		 */
-		int best = 0;
-		int conflicts = Integer.MAX_VALUE;
-		
-		for(int i=0; i<neighbours.size(); i++) {
-			neighbours.get(i).conflicts();
-			neighbours.get(i).resolveConflicts();
-			int tmpConflicts = neighbours.get(i).totalConflicts;
-			
-			if(tmpConflicts < conflicts) {
-				best = i;
-				conflicts = tmpConflicts;
-			}
-		}
-		return neighbours.get(best);
-	}
 	
 	public Solution getNewRandom(int size, ArrayList<Solution> n) {
 		Random rand = new Random();
