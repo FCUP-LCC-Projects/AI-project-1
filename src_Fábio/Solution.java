@@ -258,7 +258,7 @@ public class Solution {
 		for(int i : sol) {
 			System.out.print(mem.points[i]+" ");
 		}
-		System.out.println(mem.points[sol[0]]);
+		System.out.println(mem.points[0]);
 		System.out.println();
 	}
 	

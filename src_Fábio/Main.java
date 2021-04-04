@@ -1,36 +1,54 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+<<<<<<< HEAD
 import java.util.ArrayList;
+=======
+>>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 import java.util.Random;
 import java.util.Scanner;
 
 
 public class Main {
 	
+<<<<<<< HEAD
 	public static int generatePoints(int n, int m, Memory mem) {
+=======
+	public static void generatePoints(int n, int m, Memory mem) {
+>>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 		/**
 		 * Generate n random points with ranges between m and -m
 		 */
 		Random rand = new Random();
 		int upperbound = m*2+1;
+<<<<<<< HEAD
 		int range=0;
+=======
+		
+>>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 		for(int i=0; i<n; i++) { 
 			int x = rand.nextInt(upperbound) - m; // a subtração é porque rand só retorna entre [0, upperbound]
 			int y = rand.nextInt(upperbound) - m; // então é necessário a subtração para se obter números negativos
 			if(mem.contains(x, y)) { i--; continue; } // ignora esta iteração se já contiver o ponto gerado
 			mem.add(x, y, i);
+<<<<<<< HEAD
 			if(x > range) range =x;
 				if(y > range) range =y;
 		}
 
 		return range;
+=======
+		}
+>>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 	}
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		Scanner sc = new Scanner(System.in);
 
+<<<<<<< HEAD
 		int range=0;
 
+=======
+>>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 		System.out.println("Input de pontos\n");
 		System.out.println("1 - Gerar Input aleatório");
 		System.out.println("2 - Escolher ficheiro de input");
@@ -45,8 +63,12 @@ public class Main {
 			System.out.println("Valor máximo das coordenadas");
 			m = sc.nextInt();
 			mem = new Memory(n);
+<<<<<<< HEAD
 			range = generatePoints(n, m, mem);
 			range = m;
+=======
+			generatePoints(n, m, mem);
+>>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 		}
 		if(input ==2){
 			sc.nextLine();
@@ -61,8 +83,11 @@ public class Main {
 				x = myReader.nextInt();
 				y = myReader.nextInt();
 				mem.add(x,y,i);
+<<<<<<< HEAD
 				if(x > range) range =x;
 				if(y > range) range =y;
+=======
+>>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 			}
 			myReader.close();
 		}
@@ -76,8 +101,11 @@ public class Main {
 		
 		int algorithm = sc.nextInt();
 
+<<<<<<< HEAD
 		ArrayList<Point> points = new ArrayList<Point>();
 
+=======
+>>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 		if(algorithm == 3){
 			boolean restart = true;
 			while(restart){

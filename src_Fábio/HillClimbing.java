@@ -104,10 +104,7 @@ public class HillClimbing {
 				nConflicts = s.totalConflicts;
 				neighbours = s.neighbours;
 			}
-			else{
-				System.out.println("Solução ótima não encontrada");
-				break; 
-			} 
+			else break; 
 		
 		}
 
