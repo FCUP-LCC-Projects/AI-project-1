@@ -49,28 +49,17 @@ public class AntColonyOptimization{
             for(int k=0; k<sols.length; k++){
                 Solution curr = sols[k];
                 int conflicts = curr.totalConflicts;
-<<<<<<< HEAD
                 long perimeter = curr.getPerimiter();
-=======
->>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 
                 
                 for(int l =0; l<curr.solMaxSize-1; l++){
                     if(curr.sol[l] == i && curr.sol[l+1] ==j){
-<<<<<<< HEAD
                         pheromoneTotal += q/perimeter;
-=======
-                        pheromoneTotal += q/(conflicts+1);
->>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
                         break; 
                     }
                 }
                 if(curr.sol[curr.solMaxSize-1] == i && curr.sol[0] == j){
-<<<<<<< HEAD
                     pheromoneTotal +=q/(perimeter);
-=======
-                    pheromoneTotal +=q/(conflicts+1);
->>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
                 }
             }
             return pheromoneTotal;
@@ -98,11 +87,7 @@ public class AntColonyOptimization{
             for(int j=0; j<points;j++){
                 if(j != i && available[j]){
                     double p = Math.pow(pheromone[i][j], alpha);
-<<<<<<< HEAD
                     double d = Math.pow((1.0/euclidean(i,j)), beta);
-=======
-                    double d = Math.pow(1.0/euclidean(i,j), beta);
->>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
                     path.add(p*d);
                     total +=(p*d);
                     pointIndex.add(j);
@@ -141,7 +126,6 @@ public class AntColonyOptimization{
             return pointIndex.get(next);
         }
 
-<<<<<<< HEAD
         private Solution buildNewSolution(){
             boolean[] available = new boolean[points];
             Arrays.fill(available,true);
@@ -170,9 +154,6 @@ public class AntColonyOptimization{
 
 
         public ArrayList<Point> findBestPath(int maxItrs, int ants){
-=======
-        public void findBestPath(int maxItrs, int ants){
->>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
             Solution[] solutions = new Solution[ants];            
             
             for(int i=0; i<maxItrs; i++){
@@ -212,48 +193,9 @@ public class AntColonyOptimization{
             System.out.println("Perimetro: " + bestPerimeter);
             System.out.println("Percentagem de formigas que escolheu melhor caminho:" + ((double)counter/(double)ants) *100 + "%");
             
-<<<<<<< HEAD
            solutions[bestIndex].printSolution();
            return solutions[bestIndex].returnPoints();
             
         }
 
-=======
-            solutions[bestIndex].printSolution();
-            
-        }
-
-        private Solution buildNewSolution(){
-            boolean[] available = new boolean[points];
-            Arrays.fill(available,true);
-            Random rand = new Random();
-            int start = rand.nextInt(points);
-            available[start] = false;
-            Solution s = new Solution(points,mem);
-            s.solAdd(start);
-            
-            for(int i=1; i<points; i++){
-                int next = probability(start, available);
-                available[next] = false;
-                s.solAdd(next);
-                s.edgeAdd(new Edge(start,next, euclidean(start,next)));
-                start = next;
-            }
-
-            //Fechar caminho
-            int last = s.solGetLast();
-            int first = s.solGetFirst();
-            int distance = euclidean(s.solGetFirst(), s.solGetLast());
-            s.edgeAdd(new Edge(last, first, distance));
-            s.conflicts();
-            return s;
-        }
-
-      
-
-
-
-
-
->>>>>>> de33a959afe963ef40bbb6f1ebdafa1bfafa2884
 } 

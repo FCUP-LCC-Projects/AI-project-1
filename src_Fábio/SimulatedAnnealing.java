@@ -8,7 +8,7 @@ public class SimulatedAnnealing {
 	final double alpha = 0.95; //decremento 
 	
 	
-	public void simmulatedAnnealing(Solution s, Memory mem) {		
+	public ArrayList<Point> simmulatedAnnealing(Solution s, Memory mem) {		
 		Solution curSol = new Solution(s);
 		curSol.conflicts();
 		int curConflicts = curSol.totalConflicts;
@@ -73,7 +73,9 @@ public class SimulatedAnnealing {
 		
 		System.out.println("iter: "+count);
 		System.out.println("conflicts: "+minConflict);
+		min.changeSolFromEdges();
 		min.printSolution();
+		return min.returnPoints();
 	}
 	
 	
