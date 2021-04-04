@@ -1,8 +1,6 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
-//melhor não meter os algoritmos aqui, embora seja chamado de Solution, que isto já tá bue longo
 public class Solution {
 	/**
 	 * Contém todas as estruturas necessárias para o cálculo do candidato à solução.
@@ -16,35 +14,69 @@ public class Solution {
 	 */
 	int[] sol;
 	Edge[] edges;
-	Memory mem;
 	int solSize, edgeSize, solMaxSize, edgeMaxSize;
-
-	Solution(){};
-
-	Solution(Memory mem, Edge[] edges){
-		solMaxSize = mem.memSize;
-		edgeMaxSize = mem.memSize;
-		solSize =0;
-		edgeSize =0;
+	int totalConflicts;
+	int validConflicts;
+	
+	ArrayList<Edge> conflicts = new ArrayList<Edge>();
+	ArrayList<Solution> neighbours = new ArrayList<Solution>();
+	Memory mem;
+	
+	Solution(int n, int[] sols, Edge[] edges,Memory m){
+		solMaxSize = n;
+		edgeMaxSize = solMaxSize;
+		solSize = 0;
+		edgeSize = 0;
 		sol = new int[solMaxSize];
-		Arrays.fill(sol,-1);
+		for(int i=0; i<n;i++){
+			sol[i] = sols[i];
+		}
 		this.edges = new Edge[solMaxSize];
 
 		for(int i=0; i<edges.length; i++){
 			this.edges[i] = edges[i];
 		}
-		this.mem = mem;	
+		 mem =m;
+	}
+	//Cópia profunda
+	Solution (Solution s){
+		this.solMaxSize = s.solMaxSize;
+		this.edgeMaxSize = s.edgeMaxSize;
+		this.sol = new int[this.solMaxSize];
+		this.totalConflicts = s.totalConflicts;
+		this.validConflicts = s.validConflicts;
+		
+		for(int i=0; i<s.solMaxSize;i++){
+			this.sol[i] = s.sol[i];
+		}
+		this.edges = new Edge[this.solMaxSize];
+
+		for(int i=0; i<s.edges.length; i++){
+			int origin, des, dist;
+			origin = s.edges[i].origin;
+			des = s.edges[i].dest;
+			dist = s.edges[i].distance;
+			this.edges[i] = new Edge(origin,des,dist);
+		}
+		this.mem = s.mem;
+		// for(int i=0; i<s.mem.memSize; i++){
+		// 	int x,y,ind;
+		// 	x = s.mem.points[i].x;
+		// 	y = s.mem.points[i].y;
+		// 	ind = s.mem.points[i].index;
+		// 	this.mem.add(x,y,ind);
+		// }
+
 	}
 	
-	Solution(int n, Memory mem){
+	Solution(int n,Memory m){
 		solMaxSize = n;
-		edgeMaxSize = n;
+		edgeMaxSize = solMaxSize;
 		solSize = 0;
 		edgeSize = 0;
 		sol = new int[solMaxSize];
-		Arrays.fill(sol,-1);
-		edges = new Edge[edgeMaxSize]; //n tenho a certeza se é mesmo este o numero maximo de edges dado n pontos
-		this.mem = mem;
+		edges = new Edge[edgeMaxSize]; 
+		mem = m;
 	}
 	
 	//estas funções abaixo são só para facilitar o código, para dar para usá-las como se os arrays fossem listas
@@ -62,10 +94,24 @@ public class Solution {
 	}
 	
 	public boolean solContains(int index) {
-		for(int cur : sol) {
-			if(cur == index) return true;
+		for(int i=0; i<solSize; i++) {
+			if(sol[i] == index) return true;
 		}
 		return false;
+	}
+	
+	public int[] copySol(int limit) {
+		int[] s = new int[solMaxSize];
+		for(int i = 0; i<limit; i++)
+			s[i] = sol[i];
+		return s;
+	}
+	
+	public Edge[] copyEdge() {
+		Edge[] e = new Edge[edgeMaxSize];
+		for(int i=0; i<edgeMaxSize; i++)
+			e[i] = edges[i];
+		return e;
 	}
 	
 	public boolean edgeContains(Edge e) {
@@ -78,9 +124,18 @@ public class Solution {
 	public void edgeAdd(Edge edge) {
 		edges[edgeSize++] = edge;
 	}
-
-	public int getPerimiter(){
-		int size =0; 
+	
+	public int getEdge(Edge edge) {
+		for(int i=0; i<edgeSize; i++)
+			if(edges[i].equals(edge)) return i;
+		return -1; //não existe
+	}
+	
+	public long getPerimiter(){
+		/**
+		 * Calcula o perímetro do polígono
+		 */
+		long size =0; 
 		for(int i=0; i<solMaxSize; i++){
 			size += edges[i].distance;
 		}
@@ -121,10 +176,9 @@ public class Solution {
 		 */
 		Random rand = new Random();
 		int start = rand.nextInt(solMaxSize);
-		start =0;	
 		solAdd(start);
-	
-		while(solSize <solMaxSize){
+		
+		while(solSize < solMaxSize) {
 			int next = nearestNeighbour(mem.points[start], mem);
 			solAdd(next);
 			edgeAdd(new Edge(start, next, euclidean(mem, start, next)));
@@ -133,6 +187,8 @@ public class Solution {
 		
 		int lastEdgeDistance = euclidean(mem, solGetLast(), solGetFirst()); //fica a faltar o último ramo, que é entre o último ponto e o primeiro
 		edgeAdd(new Edge(solGetLast(), solGetFirst(), lastEdgeDistance));
+
+		conflicts();
 	}
 	
 	// Durstenfeld shuffle
@@ -147,6 +203,34 @@ public class Solution {
 			sol[j] = tmp;
 		}
 	}
+
+	public void changeSolFromEdges(){
+		Edge a = edges[0];
+		sol[0] = a.origin;
+		
+		for(int i=1; i<edges.length; i++){
+			 a = edges[i];
+			 sol[i] = a.origin;
+
+
+		}
+	}
+	
+	public void edgeGenerate(Memory mem) {
+		for(int i=0; i<solMaxSize-1; i++) {
+			edgeAdd(new Edge(sol[i], sol[i+1], 
+					euclidean(mem, sol[i], sol[i+1])));
+		}
+		
+		int lastEdgeDistance = euclidean(mem, solGetLast(), solGetFirst()); //fica a faltar o último ramo, que é entre o último ponto e o primeiro
+		edgeAdd(new Edge(solGetLast(), solGetFirst(), lastEdgeDistance));
+	}
+	
+	public void solGenerate(Memory mem) {
+		for(int i=0; i<edgeMaxSize; i++) {
+			sol[i] = edges[i].origin;
+		}
+	}
 	
 	public void permutation(Memory mem) {
 		/**
@@ -156,147 +240,234 @@ public class Solution {
 			solAdd(i);
 		shuffle();
 		
-		for(int i=0; i<solMaxSize-1; i++) {
-			edgeAdd(new Edge(sol[i], sol[i+1], 
-					euclidean(mem, sol[i], sol[i+1])));
-		}
+		edgeGenerate(mem);
+		
+		conflicts();
 
-		int lastEdgeDistance = euclidean(mem, solGetLast(), solGetFirst()); //fica a faltar o último ramo, que é entre o último ponto e o primeiro
-		edgeAdd(new Edge(solGetLast(), solGetFirst(), lastEdgeDistance));
+	}
+	public ArrayList<Point> returnPoints(){
+		ArrayList<Point> points = new ArrayList<Point>();
+		for(int i: sol){
+			points.add(mem.points[i]);
+		}
+		return points;
 	}
 
-	private int orientation(Point edgeStart, Point edgeEnd, Point p){
-		
-		int value = ((edgeEnd.y - edgeStart.y) * (p.x - edgeEnd.x)) - ((edgeEnd.x- edgeStart.x) * (p.y - edgeEnd.y));
-		if(value ==0){
-			return 0;
+	
+	public void printSolution() {
+		for(int i : sol) {
+			System.out.print(mem.points[i]+" ");
 		}
-		if(value >0){
-			return 1;
-		}
-		else{
-			return 2;
-		}
-	}
-	private boolean onSegment(Point edgeStart, Point edgeEnd, Point p){
-        if (edgeEnd.x <= Math.max(edgeStart.x, p.x) && edgeEnd.x >= Math.min(edgeStart.x, p.x) && 
-        
-        edgeEnd.y <= Math.max(edgeStart.y, p.y) && edgeEnd.y >= Math.min(edgeStart.y, p.y)){
-            return true; 
-        } 
-  
-    return false;
-    }
-
-	public boolean edgeIntersect(Edge a, Edge b){
-		int o1, o2,o3,o4;
-		Point start1, end1, start2, end2;
-		start1 = mem.points[a.origin];
-		end1 = mem.points[a.dest];
-		start2 = mem.points[b.origin];
-		end2 = mem.points[b.dest];
-		
-		o1 = orientation(start1, end1, start2);
-		o2 = orientation(start1, end1, end2);
-		o3 = orientation(start2, end2, start1);
-		o4 = orientation(start2, end2, end1);
-		if(o1 != o2 && o3 != o4){
-            return true;
-        }
-
-        if(o1==0  && onSegment(start1, start2, end1)) return true;
-        if(o2==0  && onSegment(start1, end2, end1)) return true;
-        if(o3==0  && onSegment(start2, start1, end2)) return true;
-        if(o4==0  && onSegment(start2, end1, end2)) return true;
-
-        return false;
-
+		System.out.println(mem.points[sol[0]]);
+		System.out.println();
 	}
 	
-	public void sortPath(){
-		for(int i=0; i<solMaxSize-1; i++){
+	public void printEdges() {
+		for(Edge e : edges) {
+			System.out.println("["+mem.points[e.origin]+","+mem.points[e.dest]+"]");
+		}
+	}
+	public  boolean inBox(Point p1, Point p2, Point p3){
+        return(p3.x >= Math.min(p1.x,p2.x) && p3.x <=Math.max(p1.x,p2.x) && p3.y >= Math.min(p1.y, p2.y) 
+                    && p3.y <=Math.max(p1.y,p2.y));
+    }
+
+	public  boolean[] edgeIntersect(Edge a, Edge b){
+		Point a1 = mem.points[a.origin];
+		Point a2 = mem.points[a.dest];
+
+		Point b1 = mem.points[b.origin];
+		Point b2 = mem.points[b.dest];
+	   
+	   boolean valid = true;
+
+	   double d1 = (b1.x - a1.x)*(a2.y-a1.y) -(a2.x -a1.x)*(b1.y-a1.y);
+
+	   double d2 = (b2.x -a1.x)*(a2.y-a1.y) - (a2.x -a1.x)*(b2.y-a1.y);
+
+	   double d3 = (a1.x-b1.x)*(b2.y-b1.y) -(b2.x-b1.x)*(a1.y-b1.y);
+
+	   double d4 = (a2.x-b2.x)*(b2.y-b1.y) -(b2.x-b1.x)*(a2.y-b2.y);
+
+	   boolean [] res = new boolean[2];
+
+	   int val = (a2.x-a1.x)*(b2.y-b1.y) - (a2.y-a1.y)*(b2.x-b1.x);
+	   
+	   if( val==0){
+		   int scalar = (a2.x-a1.x)*(b2.x-b1.x) + (a2.y-a1.y)*(b2.y-b1.y);
+		   if(scalar < 0){
+			   valid = false;
+		   }
+
+	   }
+	   res[1] = valid;
+
+	   if(d1*d2<0 && d3*d4<0){
+		   res[0] = true;
+		   return res;
+	   }
+
+	   else if(d1==0 && inBox(a1, a2, b1)){
+		   res[0] = true;
+		   return res;
+	   }
+
+	   else if(d2==0 && inBox(a1,a2,b2)){
+		   res[0] = true;
+		   return res;
+	   }
+
+	   else if(d3==0 && inBox(b1,b2,a1)){
+		   res[0] = true;
+		   return res;        }
+
+	   else if(d4==0 && inBox(b1,b2,a2)){
+		   res[0] = true;
+		   return res;        
+	   }
+	   res[0] = false;
+	   return res;
+   }
+	private static void sortPath(Edge[] edges){
+		int size = edges.length;
+        
+        for(int i=0; i<size-1; i++){
 			Edge a,b;
 			a = edges[i];
 			b = edges[i+1];
+		
 			if(a.dest != b.origin){
-				for(int j=0; j<solMaxSize; j++){
+				for(int j=0; j<size; j++){
 					Edge c = edges[j];
 					if(c.origin == a.dest){
 						edges[i+1] = c;
 						edges[j] = b;
 					}
 				}
-
 			}
 		}
 	}
-
-	public void twoExchange(Edge a, Edge b){
+	public Solution twoExchange(Edge a,Edge b, Solution next){
 		
-		Edge fst, scnd;
-		fst = new Edge(a.origin, b.origin, euclidean(mem, a.origin, b.origin));
-		scnd =new  Edge(a.dest, b.dest, euclidean(mem, a.dest, b.dest));
-		
-		for(int i=0; i<edges.length; i++){
-			if(edges[i] == fst || edges[i] == scnd){
-				return;
-			}
-		}
-		int index =0;
-		while(edges[index] !=a){
-			index++;
-		}
-		
-		edges[index] = fst;
-		
-		index++;
+        Edge start = new Edge(a.origin, b.origin,euclidean(next.mem, a.origin, b.origin));
+        Edge end = new Edge(a.dest,b.dest,euclidean(next.mem,a.dest,b.dest));
+        int i=0;
+        
+		for(i=0; i<next.edgeMaxSize; i++){
+            if(next.edges[i].equals(a)){
+                next.edges[i] = start;
+                break;
+            }
+        }
+        i++;
+        if(i >= next.edgeMaxSize) i =0;
 
-		if(index >=solMaxSize){
-			index=0;
-		}
+        // Mudar orientação do ciclo entre a aresta a e a aresta b
 
-		while(edges[index] != b){
-			edges[index] = new Edge(edges[index].dest, edges[index].origin, edges[index].distance);
-			index++;
-			if(index >= solMaxSize){
-				index=0;
-			}
-		}
+        while(!next.edges[i].equals(b)){
+            int x,y;
+            x = next.edges[i].origin;
+            y = next.edges[i].dest;
 
-		edges[index] = scnd;
+            next.edges[i].origin = y;
+            next.edges[i].dest = x;
+            i++;
+            if(i >= next.edgeMaxSize) i=0;
 
-		sortPath();
+        }
+        next.edges[i] =end;
 
-	}
+        sortPath(next.edges);
+		changeSolFromEdges();
+		return next;
+    }
+	public static boolean conflictAlreadyFound(Edge a, Edge b,ArrayList<Edge> conflicts){
+        
+        if(conflicts.size() >0){
+            if(conflicts.get(0).equals(a) && conflicts.get(1).equals(b)){
+                return true;
+            }
+            if(conflicts.get(1).equals(a) && conflicts.get(0).equals(b)){
+                return true;
+            }
+        }
 
-	public boolean conflictAlreadyFound(ArrayList<Edge> conflicts, Edge a, Edge b){
+        for(int i=1; i<conflicts.size()-1; i++){
+            if(conflicts.get(i).equals(a) && conflicts.get(i+1).equals(b)){
+                return true;
+            }
+            if(conflicts.get(i).equals(a) && conflicts.get(i-1).equals(b)){
+                return true;
+            }
 
-		for(int i=0; i<conflicts.size()-1; i+=2){
-			if(conflicts.get(i) == a && conflicts.get(i+1) == b){
-				return true;
-			}
-			if(conflicts.get(i) == b && conflicts.get(i+1) == a){
-				return true;
-			}
-		}
-		return false;
-	}
+        }
+        return false;
 
-	public ArrayList<Edge> getAllConflicts(){
-		
+    }
+
+	public void conflicts(){
 		ArrayList<Edge> conflicts = new ArrayList<Edge>();
-		for(int i=0; i<solMaxSize; i++){
+		int totalConflicts=0;
+		int validConflicts=0;
+	
+		for(int i=0; i<edgeMaxSize; i++){
 			Edge a = edges[i];
-			for(int j=0; j<solMaxSize; j++){
+			for(int j=0; j<edgeMaxSize; j++){
 				Edge b = edges[j];
-				if(a != b && a.dest != b.origin && a.origin != b.dest){
-					if(edgeIntersect(a, b) && !conflictAlreadyFound(conflicts, a, b)){
+				if(!a.equals(b) && a.dest != b.origin && a.origin != b.dest){
+					boolean[] res = edgeIntersect(a, b);
+					boolean intersect=res[0];
+					boolean valid=res[1];
+					if(intersect && !conflictAlreadyFound(a,b,conflicts)){
+						if(!valid){
+							totalConflicts++;
+						}
+						else{
 						conflicts.add(a);
 						conflicts.add(b);
+						totalConflicts++;
+						validConflicts++;
+						}
 					}
 				}
 			}
 		}
-		return conflicts;
-	 }
+		this.totalConflicts = totalConflicts;
+		this.validConflicts = validConflicts;
+		this.conflicts = conflicts;
+	}
+
+	public void resolveConflicts() {
+		/**
+		 * Esgota todos os cruzamentos do subconjunto formando a vizinhança do candidato atual
+		 * Retorna o número de vizinhos que compõem o espaço de vizinhança
+		 */
+		ArrayList<Solution> neighbours = new ArrayList<>();
+
+		
+
+		for(int i=0; i<conflicts.size(); i+=2){
+			Edge a = conflicts.get(i);
+			Edge b = conflicts.get(i+1);
+			Solution next = new Solution(this);
+			twoExchange(a, b,next);
+			neighbours.add(next);
+		}
+		this.neighbours = neighbours;
+	}
+	
+	public void printNeighbours(ArrayList<Solution> n) {
+		for(Solution s : n) {
+			s.printEdges();
+			System.out.println();
+		}
+	}
+
+	
+	
+	// public void printConflicts(Memory mem){
+	// 	System.out.println("empty? :" + edgeConflicts.isEmpty());
+	// 	for(Conflict c : edgeConflicts)
+	// 		System.out.println("(" + mem.points[c.a.origin] +" " + mem.points[c.a.dest] +")" +" "+"(" +mem.points[c.b.origin] + " " + mem.points[c.b.dest] + ")");
+	// }
 }
