@@ -1,3 +1,4 @@
+import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -46,20 +47,40 @@ public class HillClimbing {
 		/**
 		 * Retorna o vizinho com menos conflitos e retorna o seu índice
 		 */
-		int best = 0;
+		//int best = 0;
 		int conflicts = Integer.MAX_VALUE;
+		int i =neighbours.size()-1;
+		Solution best = new Solution(0,new Memory(0));
 		
-		for(int i=0; i<neighbours.size(); i++) {
+		while(i>=0){
+			
 			neighbours.get(i).conflicts();
 			neighbours.get(i).resolveConflicts();
 			int tmpConflicts = neighbours.get(i).totalConflicts;
 			
 			if(tmpConflicts < conflicts) {
-				best = i;
+				best = new Solution(neighbours.get(i));
 				conflicts = tmpConflicts;
 			}
+			neighbours.remove(i);
+			i--;
+			
+
+
 		}
-		return neighbours.get(best);
+		
+		
+		// for(int i=0; i<neighbours.size(); i++) {
+		// 	neighbours.get(i).conflicts();
+		// 	neighbours.get(i).resolveConflicts();
+		// 	int tmpConflicts = neighbours.get(i).totalConflicts;
+			
+		// 	if(tmpConflicts < conflicts) {
+		// 		best = i;
+		// 		conflicts = tmpConflicts;
+		// 	}
+			
+		return best;
 	}
 	
 	public Solution getNewRandom(int size, ArrayList<Solution> n) {

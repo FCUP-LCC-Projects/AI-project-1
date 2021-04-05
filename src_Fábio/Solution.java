@@ -59,13 +59,6 @@ public class Solution {
 			this.edges[i] = new Edge(origin,des,dist);
 		}
 		this.mem = s.mem;
-		// for(int i=0; i<s.mem.memSize; i++){
-		// 	int x,y,ind;
-		// 	x = s.mem.points[i].x;
-		// 	y = s.mem.points[i].y;
-		// 	ind = s.mem.points[i].index;
-		// 	this.mem.add(x,y,ind);
-		// }
 
 	}
 	
