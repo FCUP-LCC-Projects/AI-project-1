@@ -36,8 +36,13 @@ public class AntColonyOptimization{
                 for(j=0; j<points; j++){
                     if(i!=j){
                         double t = getTotalPheromone(sols, i, j);
+                        
                         double val = pheromone[i][j] * (1- evaporation);
                         pheromone[i][j] = val +t;
+                        if(Double.isInfinite(pheromone[i][j]) || Double.isNaN(pheromone[i][j])){
+                            System.out.println();
+
+                        }
                     }
                 }
             }
@@ -54,12 +59,13 @@ public class AntColonyOptimization{
                 
                 for(int l =0; l<curr.solMaxSize-1; l++){
                     if(curr.sol[l] == i && curr.sol[l+1] ==j){
-                        pheromoneTotal += q/perimeter;
+                        pheromoneTotal += q/(perimeter+conflicts);
                         break; 
                     }
                 }
                 if(curr.sol[curr.solMaxSize-1] == i && curr.sol[0] == j){
-                    pheromoneTotal +=q/(perimeter);
+                    pheromoneTotal +=q/(perimeter+conflicts);
+
                 }
             }
             return pheromoneTotal;
@@ -96,7 +102,7 @@ public class AntColonyOptimization{
             /*
             Cálculo da probabilidade de escolher cada caminho, utilizando os valores
             já calculados */
-
+            
             for(int j=0; j<pointIndex.size(); j++){
                 prob.add(path.get(j) / total);
             }
@@ -113,10 +119,12 @@ public class AntColonyOptimization{
 
             Random rand = new Random();
             double r = rand.nextDouble();
-            int next=-1;
+            int next=0;
+           
             /* Ver onde encaixa o número gerado aleatoriamente para o próximo vizinho */
             
             for(int j=0; j<cumulativeSum.size()-1;j++){
+              //  int less = Double.compare(r,cumulativeSum.get(j));
                 if(r <= cumulativeSum.get(j) && r > cumulativeSum.get(j+1)){
                     next = j;
                     break;
@@ -162,7 +170,16 @@ public class AntColonyOptimization{
                 for(int j=0; j<ants; j++){
                     Solution tmp = buildNewSolution();
                     solutions[j] = tmp;
+                    
+                    if(solutions[j].totalConflicts ==0){
+                        System.out.println("------Solução ótima encontrada----------");
+                        System.out.println("Conflitos: " + solutions[j].totalConflicts);
+                        System.out.println("Perimetro: " + solutions[j].getPerimiter());
+                        solutions[j].printSolution();
+                        return solutions[j].returnPoints();
+                    }
                 }
+
                 updatePheromone(solutions);
             }
             int counter =0;
@@ -185,13 +202,12 @@ public class AntColonyOptimization{
                 if(conflicts == bestConflicts && perimeter == bestPerimeter){
                     counter++;
                 }
-                
             }
             
             System.out.println("----------------Melhor caminho encontrado---------------");
             System.out.println("Conflitos: " + bestConflicts);
             System.out.println("Perimetro: " + bestPerimeter);
-            System.out.println("Percentagem de formigas que escolheu melhor caminho:" + ((double)counter/(double)ants) *100 + "%");
+            System.out.println("Percentagem de formigas que escolheu melhor caminho encontrado:" + ((double)counter/(double)ants) *100 + "%");
             
            solutions[bestIndex].printSolution();
            return solutions[bestIndex].returnPoints();

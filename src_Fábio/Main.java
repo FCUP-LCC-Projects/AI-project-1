@@ -80,7 +80,7 @@ public class Main {
 
 		if(algorithm == 3){
 			boolean restart = true;
-			while(restart){
+			//while(restart){
 
 				int maxItrs,ants;
 				double alpha,beta,evap;
@@ -98,12 +98,11 @@ public class Main {
 				points = aco.findBestPath(maxItrs, ants);
 				Visualizer.initVisualizer(points,range+20);
 
-				System.out.println("Tentar com novos parâmetros? (s/n)");
-				String str = sc.next();
-				if(str.equals("n")) restart=false; 
+				//System.out.println("Tentar com novos parâmetros? (s/n)");
+				//String str = sc.next();
+				//if(str.equals("n")) restart=false; 
 			}
 			
-		}
 
 		if(algorithm ==1 || algorithm==2){
 			System.out.println("Método de determinação de candidato");
@@ -135,10 +134,9 @@ public class Main {
 			SimulatedAnnealing sim = new SimulatedAnnealing();
 			points = sim.simmulatedAnnealing(solution,mem);
 			Visualizer.initVisualizer(points, range);
-		}
-	     
-		
+		}	
 		 sc.close();
+		 return;
 
 	}
 }
